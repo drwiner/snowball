@@ -1,0 +1,4 @@
+venv/*
+.idea
+tokenizers*
+*.DS_Store
