@@ -5,6 +5,8 @@ from eval_cluster_results import do_eval
 dir = "./snowball_input/"
 results = []
 for file in os.listdir(dir):
+    if not file.endswith(".csv"):
+        continue
     for i, t in [(3, "snowball"),(5, "hdbscan_eom"),(6, "hdbscan_leaf")]:
         args = dict()
         args["clustered"] = dir + file
