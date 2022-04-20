@@ -59,6 +59,7 @@ def run_batch(q_batch, i):
         args["f1"] = f1
         args["ari"] = ari
         args["cust"] = cust
+        results.append(args)
 
     df = pd.DataFrame(results)
     df.to_csv(f"./snowball_output/scored_results_batch_{i}.csv")

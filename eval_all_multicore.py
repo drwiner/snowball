@@ -75,6 +75,7 @@ if __name__ == "__main__":
         st += " python3 eval_batch.py " + str(i)
         if i != num_batches-1:
             st += " |"
+    print(st)
     os.system(st)
     # batch = JsonHelper.parse_json("./snowball_input_batches/batch_{}.json".format(sys.argv[1]))
     # run_batch(batch, sys.argv[1])
