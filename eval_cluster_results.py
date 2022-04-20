@@ -1,5 +1,6 @@
 import argparse
 import csv
+from collections import defaultdict
 
 
 def binom(n, k):
@@ -81,6 +82,11 @@ def do_eval(args):
 	gold_text_col = args["gold_text_column"]
 	gold_id_col = args["gold_id_column"]
 	gold_unclustered_id = args["gold_report_unclustered_id"]
+
+	if "top_k" in args:
+		top_k = args["top_k"]
+	else:
+		top_k = None
 
 	# utterance_map = JsonHelper.parse_json(args["processmap"])
 
@@ -164,6 +170,8 @@ def do_eval(args):
 	unclustered_count = 0
 	clustered_objects = []
 
+	size_per_cluster = defaultdict(int)
+
 	with open(clustered_file) as contig_clusters:
 		readCSV = csv.reader(contig_clusters, delimiter=',')
 		for i, row in enumerate(readCSV):
@@ -175,8 +183,26 @@ def do_eval(args):
 			clustered_count += 1
 			contig = row[cluster_text_col].strip().lower()
 			bin_num = clusters_list.index(row[cluster_id_col].strip())
+			size_per_cluster[bin_num] += 1
 			clusters[bin_num].append(contig)
 			clustered_objects.append(contig)
+
+	if top_k:
+		print("top K: " + str(top_k))
+		sorted_items = sorted(size_per_cluster.items(), key=lambda item: item[1])
+		sorted_items.reverse()
+		# sorted_items = [(key, value) for key, value in sorted_items.items()]
+		new_clusters = dict()
+		clustered_objects = list()
+		clustered_count = 0
+		for i, (key, value) in enumerate(sorted_items):
+			if i >= top_k:
+				break
+			clustered_count += value
+			new_clusters[i] = clusters[key]
+			clustered_objects.extend(new_clusters[i])
+		clusters = new_clusters
+		n_clusters = len(clusters)
 
 	print("Number of objects available in the clustering result: ", len(clustered_objects))
 
@@ -259,8 +285,15 @@ def do_eval(args):
 	my_precision = getPrecision(clusters_species, n_clusters, gold_standard_n_clusters, total_clustered)
 	my_recall = getRecall(clusters_species, n_clusters, gold_standard_n_clusters, total_clustered,
 						  (gold_standard_count - total_clustered))
-	my_ari = getARI(clusters_species, n_clusters, gold_standard_n_clusters, total_clustered)
-	my_f1 = getF1(my_precision, my_recall)
+	try:
+		my_ari = getARI(clusters_species, n_clusters, gold_standard_n_clusters, total_clustered)
+	except:
+		my_ari = 0
+
+	try:
+		my_f1 = getF1(my_precision, my_recall)
+	except:
+		my_f1 = 0
 
 	print("\nEvaluation Results:")
 	print("Precision =", my_precision)
