@@ -47,6 +47,7 @@ def create_split():
     num_per_cpu = int(math.ceil(len(queries) / num_cpus))
     for i in range(num_cpus):
         batch = queries[x: min(len(queries), x + num_per_cpu)]
+        x += num_per_cpu
         JsonHelper.write_json(batch, f"./snowball_input_batches/batch_{i}.json")
 
 

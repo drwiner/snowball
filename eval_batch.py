@@ -52,7 +52,8 @@ def create_split():
 def run_batch(q_batch, i):
     results = []
 
-    for args in q_batch:
+    for j, args in enumerate(q_batch):
+        print(f"CPU {i} item {j}")
         p, r, f1, ari, cust = do_eval(args)
         args["precision"] = p
         args["recall"] = r
@@ -65,6 +66,7 @@ def run_batch(q_batch, i):
     df.to_csv(f"./snowball_output/scored_results_batch_{i}.csv")
 
 if __name__ == "__main__":
+    print(f"Running script {sys.argv[1]}")
     # arg_0 = sys.argv[1]
     # if (arg_0)
     # # create_split()
